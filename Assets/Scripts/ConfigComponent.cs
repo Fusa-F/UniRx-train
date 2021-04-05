@@ -18,9 +18,9 @@ public class ConfigComponent : SingletonMonoBehaviour<ConfigComponent>
 
 
     // sliderのMVP動作確認
-    private void Start()
-    {
-        this.UpdateAsObservable()
-            .Subscribe(_ => print(SliderReactiveProperty.Value));
-    }
+    // private void Start()
+    // {
+    //     this.UpdateAsObservable()
+    //         .Subscribe(_ => print(SliderReactiveProperty.Value));
+    // }
 }
