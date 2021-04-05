@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+using UniRx.Triggers;
 using System;
 
 public class UniRXTest : MonoBehaviour
@@ -19,8 +20,10 @@ public class UniRXTest : MonoBehaviour
         // SampleIObserver();
         // SampleOperator();
         // SampleDelay();
-        SampleButtonOnClick();
+        // SampleButtonOnClick();
         // SampleCheckProperty();
+
+        SampleTriggerEvent();
     }
 
     void Update()
@@ -112,5 +115,24 @@ public class UniRXTest : MonoBehaviour
     private void SetValue(int value)
     {
         reactiveProperty.Value = value;
+    }
+
+    /// <summary> TriggerイベントのObservable化 </summary>
+    private void SampleTriggerEvent()
+    {
+        bool mOnWall = false;
+        ReactiveProperty<bool> OnWall = new BoolReactiveProperty(false);
+        var sub = new Subject<Unit>();
+
+        this.OnTriggerEnter2DAsObservable()
+            .Where(other => other.gameObject.tag == "Wall")
+            .Subscribe(_ => mOnWall = true);
+        
+        this.OnTriggerExit2DAsObservable()
+            .Where(other => other.gameObject.tag == "Wall")
+            .Subscribe(_ => mOnWall = false);
+
+        OnWall.Subscribe(_ => print("壁に触れているか： " + OnWall.Value));
+        
     }
 }
