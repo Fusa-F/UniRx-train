@@ -23,7 +23,9 @@ public class UniRXTest : MonoBehaviour
         // SampleButtonOnClick();
         // SampleCheckProperty();
 
-        SampleTriggerEvent();
+        // SampleTriggerEvent();
+        // SampleCollection();
+        SampleInterval();
     }
 
     void Update()
@@ -124,6 +126,11 @@ public class UniRXTest : MonoBehaviour
         ReactiveProperty<bool> OnWall = new BoolReactiveProperty(false);
         var sub = new Subject<Unit>();
 
+        //フラグが有効な間、上向きに力を加える
+        this.FixedUpdateAsObservable()
+            .Where(_ => mOnWall)
+            .Subscribe(_ => print("壁に触れているか： " + OnWall.Value));        
+
         this.OnTriggerEnter2DAsObservable()
             .Where(other => other.gameObject.tag == "Wall")
             .Subscribe(_ => mOnWall = true);
@@ -131,8 +138,40 @@ public class UniRXTest : MonoBehaviour
         this.OnTriggerExit2DAsObservable()
             .Where(other => other.gameObject.tag == "Wall")
             .Subscribe(_ => mOnWall = false);
+    }
 
-        OnWall.Subscribe(_ => print("壁に触れているか： " + OnWall.Value));
+    /// <summary> リスト </summary>
+    private void SampleCollection()
+    {
+        var collection = new ReactiveCollection<string>();
+
+        collection.ObserveAdd()
+            .Subscribe(
+                x => print(string.Format("Add[{0}] = {1}", x.Index, x.Value))
+            );
         
+        collection.ObserveRemove()
+            .Subscribe(
+                x => print(string.Format("Rm[{0}] = {1}", x.Index, x.Value))
+            );
+
+        collection.Add("apple");
+        collection.Add("banana");
+        collection.Remove("apple");
+    }
+
+    /// <summary> 等間隔で実行するとき </summary> // すごく便利
+    private void SampleInterval()
+    {
+        float intarvalSec = 1f;
+
+        this.UpdateAsObservable()
+            .Where(_ => Input.GetKey(KeyCode.Z))
+            .ThrottleFirst(TimeSpan.FromSeconds(intarvalSec))
+            .Subscribe(_ => Attack());
+    }
+    private void Attack()
+    {
+        print("Attack");
     }
 }
